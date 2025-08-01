@@ -8,7 +8,8 @@
 ---
 
 ## 사용 기술
-- OpenCV
+- Python
+- OpenCV (cv2)
 - pyzbar (QR 인식 라이브러리)
 - webbrowser (웹사이트 열기)
 
@@ -98,9 +99,74 @@ cv2.destroyWindow()
 ---
 
 ## 실행 화면 예시
-<img width="1920" height="1080" alt="실행결과1" src="https://github.com/user-attachments/assets/15748e62-b0d1-4817-8fa7-f057972b5b3d" />
-- 실습용으로 받은 QR 코드 인식 후 웹사이트가 열린 화면
+<img width="1920" height="891" alt="실행결과1" src="https://github.com/user-attachments/assets/8ec81106-1785-4c85-bfd1-4dd453bad7ad" />
+
+- 실습용으로 받은 QR 코드 인식 후 웹사이트 열림
 
  
-<img width="1920" height="1080" alt="실행결과2" src="https://github.com/user-attachments/assets/4f408d79-a862-42db-bfcc-3f0f864e1f58" />
-- 네이버 주소 QR코드를 생성한 후 QR 코드 인식 후 웹사이트가 열린 화면 
+<img width="1920" height="1038" alt="실행결과2" src="https://github.com/user-attachments/assets/9586206b-88ab-4c45-aebb-71ca70c7c5a0" />
+
+- 네이버 주소 QR코드를 생성한 후 QR 코드 인식 후 네이버 사이트가 열림
+
+
+---
+
+
+# 02. ArUco 마커 실습
+
+## 개요
+- 웹캠으로 다각도 체커보드 사진 촬영 -> 카메라 캘리브레이션 -> ArUco 마커 인식 및 거리/각도 측정
+- OpenCV의 ArUco 모듈을 활용하여 **마커의 3D 위치와 회전 각도를 측정**
+- 특정 조건(거리 30cm 이하)에서 **"STOP" / "GO" 텍스트 표시 기능** 추가
+
+---
+
+## 사용 기술
+- Python
+- OpenCV (cv2, cv2.aruco)
+- Numpy
+- Pickle (캘리브레이션 데이터 저장)
+
+---
+
+## 단계별 설명
+
+### 1. 웹캠으로 체커보드 이미지 캡쳐 (photo.py)
+- 웹캠 화면 출력
+- 'a' 키 -> 현재 프레임을 '../img/' 폴더에 저장
+- 'q' 키 -> 종료
+- **체커보드 이미지를 여러 각도에서 촬영하기 위해 사용**
+- 여러 각도에서 체커보드 이미지 10장 이상 저장
+
+<img width="648" height="489" alt="실행결과3" src="https://github.com/user-attachments/assets/c52eeca7-fc7f-4671-bd1f-ef3ed7fcccbd" />
+
+- 체커보드 이미지 촬영 후 지정한 경로에 저장
+
+### 2. 카메라 캘리브레이션 (calibration.py)
+- 촬영한 체커보드 이미지들을 불러와서 **카메라 내부 파라미터(Camera Matrix)** 와 **왜곡 계수(Distortion Coefficients)** 계산
+- 다양한 체커보드 크기 및 전처리 방식(CLAHE, Blur, Adaptive Threshold)으로 검출 성공률 향상
+- 성공 시 'camera_calibration.pkl' 파일로 저장
+- 'camera_calibration.pkl' 파일은 ArUco 마커 인식 시 필수 : 촬영 시 체커보드가 프레임 전체에 잘 보이고 다양한 각도에서 찍는 것이 정확도를 높임
+
+<img width="1273" height="501" alt="실행결과6" src="https://github.com/user-attachments/assets/06e84351-c849-4334-94dc-ce0fbab78e5c" />
+
+- 캘리브레이션 성공 후 생성된 `camera_calibration.pkl'을 저장한 보정전/후
+
+### 3. ArUco 마커 인식 (ScanArucomarker2.py)
+- 'camera_calibration.pkl' 불러오기 -> 왜곡 보정
+- 웹캠 영상에서 ArUco 마커 검출
+- 마커의 **ID, 3D 위치(tvec), 회전(rvec)** 계산
+- 마커 중심에 좌표축 표시, 정보 텍스트 출력
+
+<img width="627" height="501" alt="실행결과7" src="https://github.com/user-attachments/assets/544f3ed2-b979-41c3-aefd-c3a148e63f3f" />
+
+- 실행 결과
+
+### 4. ArUco 마커 인식 + STOP/GO 텍스트
+- 3번과 동일하게 마커 인식 및 3D 포즈 추정
+- **카메라와 마커 간 거리가 30cm 이하일 경우 -> 빨간색 "STOP!" 텍스트**
+- **30cm 초과일 경우 -> 초록색 "GO!" 텍스트**
+
+<img width="1009" height="402" alt="10" src="https://github.com/user-attachments/assets/021833fe-35ee-49ba-958a-375a2ab53892" />
+
+- GO! / STOP!
