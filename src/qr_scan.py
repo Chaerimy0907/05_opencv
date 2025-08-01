@@ -1,6 +1,7 @@
 import cv2
 import matplotlib.pylab as plt
 import pyzbar.pyzbar as pyzbar
+import webbrowser
 
 # 이미지 불러오기
 #img = cv2.imread('../img/frame.png')
@@ -9,10 +10,10 @@ import pyzbar.pyzbar as pyzbar
 #gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 cap = cv2.VideoCapture(0)
+last_data = None
 
 while cap.isOpened():
     ret, img = cap.read()
-
     if not ret:
         continue
 
@@ -37,6 +38,11 @@ while cap.isOpened():
         #cv2.putText(img, text, (d.rect[0], d.rect[1] - 50), 
         #            cv2.FONT_HERSHEY_SIMPLEX, 3, (0, 0, 0), 2, cv2.LINE_AA)
         cv2.putText(img, text, (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2, cv2.LINE_AA)
+
+        if barcode_data.startswith("http") and barcode_data != last_data:
+            print(f"웹사이트로 이동 : {barcode_data}")
+            webbrowser.open(barcode_data)
+            last_data = barcode_data
 
     cv2.imshow('camera', img)
 
